@@ -4,7 +4,7 @@ class Config(object):
     def __init__(self):
         # parameters
         self.BATCH_SIZE = 256
-        self.EPISODES = 500
+        self.EPISODES = 400
         self.ACTOR_LR = 0.001                 # actor learning rate
         self.CRITIC_LR = 0.002                # critic learning rate
         self.ALPHA_LR = 0.001
@@ -12,4 +12,4 @@ class Config(object):
         self.TAU = 0.01                       # soft target update
         self.COUNTER = 0                      # replay buffer counter
         self.MEMORY_CAPACITY = 10000          # maximum experience queue size
-        self.RENDER = True                  # render toggle
+        self.RENDER = False                   # render toggle

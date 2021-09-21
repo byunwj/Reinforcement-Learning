@@ -7,7 +7,7 @@ import random
 class SAC(object):
     def __init__(self, sess, config, state_size, action_size, action_lower_bound, action_upper_bound, alpha):
         # initialize the parameters and the model
-        self.eps = 1e-16
+        self.eps = 1e-6
         self.alpha = alpha
 
         self.config = config
@@ -60,9 +60,8 @@ class SAC(object):
         
         # Add the entropy term to get soft Q target
         soft_q_target = min_q_target - self.alpha * self.log_pi_next
-        print("log pi next: ", self.log_pi_next)
         y = tf.stop_gradient(self.rewards + self.config.GAMMA * soft_q_target)
-        print("y: ", y)
+
         # calculate the td-errors for the two q-networks
         td_error1 = tf.compat.v1.losses.mean_squared_error(labels = y, predictions=q1)
         td_error2 = tf.compat.v1.losses.mean_squared_error(labels = y, predictions=q2)
@@ -76,15 +75,12 @@ class SAC(object):
         a_loss = -tf.reduce_mean(min_q - self.alpha * self.log_pi)    # to maximize the min_q - alpha*log_pi
         self.actor_optimizer = tf.compat.v1.train.AdamOptimizer(self.config.ACTOR_LR).minimize(a_loss, var_list=self.actor_params)
         
-        #alpha_loss = tf.reduce_mean( - self.alpha*(self.log_pi + self.target_entropy)) # need to change the train method
-        #self.alpha_optimizer = tf.compat.v1.train.AdamOptimizer(self.config.ALPHA_LR).minimize(alpha_loss, var_list= [self.alpha])
-        
         self.sess.run(tf.compat.v1.global_variables_initializer())
 
 
     # policy sampling will be restricted to -1 to +1 with a tanh function
     def build_actor(self, states, scope, trainable):
-        with tf.compat.v1.variable_scope(scope, reuse=tf.AUTO_REUSE):
+        with tf.compat.v1.variable_scope(scope):
             n_l1 = 256
             prob = tf.compat.v1.layers.dense(states, n_l1, trainable=trainable)
             prob = tf.nn.relu(prob)
@@ -109,7 +105,6 @@ class SAC(object):
         # sample size as the action and multiply it with stdev
         dist = tf.compat.v1.distributions.Normal(mu, std)
         actions_ = dist.sample()
-        print("actions: ", actions_)
 
         # Calculate the log probability
         log_pi = dist.log_prob(actions_)
@@ -172,10 +167,9 @@ class SAC(object):
         self.sess.run(self.soft_replace_critic1)
         self.sess.run(self.soft_replace_critic2)
         
-        mu = np.mean(self.sess.run(self.mu, {self.states: bs}))
-        std = np.mean(self.sess.run(self.std, {self.states: bs}))
-        #alpha = self.sess.run(self.alpha)
-        return mu, std
+        #mu = np.mean(self.sess.run(self.mu, {self.states: bs}))
+        #std = np.mean(self.sess.run(self.std, {self.states: bs}))
+
         
 
 
