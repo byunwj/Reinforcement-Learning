@@ -3,6 +3,7 @@ import numpy as np
 from collections import deque
 import sys
 from matplotlib import pyplot as plt
+from tensorflow.python import training
 import gym
 import tensorflow as tf
 from DDPG_Networks import DDPG
@@ -31,6 +32,7 @@ if __name__ == "__main__":
 
     step = 0
     return_lst = []
+    training_started = None
     for episode in range(config.EPISODES):
         # for each episode, reset the environment
         state = env.reset()
@@ -43,7 +45,6 @@ if __name__ == "__main__":
             # retrieve the action from the ddpg model
             action = ddpg.act(state)
             
-
             # input the action to the environment, and obtain the following
             next_state, reward, done, _ = env.step(action)
             
@@ -52,6 +53,8 @@ if __name__ == "__main__":
 
             # if there are enough instances in the replay experience queue, start the training
             if config.COUNTER > config.MEMORY_CAPACITY:
+                if training_started == None:
+                    training_started = episode
                 ddpg.train()
                 # actor_loss, critic_loss = ddpg.train()
                 #print("Actor Loss: %.4f,\tCritic Loss: %.4f" % (actor_loss, critic_loss))
@@ -73,9 +76,10 @@ if __name__ == "__main__":
         
         if np.mean(return_lst[-30:]) > -150:
             print("\n\t\t\t\t\t\tGoal Accomplished!\t\t\t\t\t\t\n")
-            plt.plot(return_lst)
-            plt.title("Return over Episodes")
-            plt.xlabel("Episodes")
-            plt.ylabel("Return")
-            plt.savefig("Return Graph.png")
-            sys.exit()
+    
+    plt.plot(return_lst, linewidth=0.6, label='Episode Return')
+    plt.axvline(training_started, linewidth=2, color="r", label='Training Phase Began')
+    plt.title("Return over Episodes")
+    plt.xlabel("Episodes")
+    plt.ylabel("Return")
+    plt.savefig("Return Graph.png")
