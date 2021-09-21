@@ -11,11 +11,8 @@ class DDPG(object):
         # initialize the parameters and the model
         self.config = config
         self.sess = sess
-        if self.config.MEM_SETTING == 'np':
-            self.memory = np.zeros((self.config.MEMORY_CAPACITY, state_size * 2 + action_size + 1), dtype=np.float32)
-        else:
-            self.memory = deque(maxlen = self.config.MEMORY_CAPACITY)
-
+        self.memory = np.zeros((self.config.MEMORY_CAPACITY, state_size * 2 + action_size + 1), dtype=np.float32)
+        
         self.state_size = state_size
         self.action_size = action_size
         self.action_lower_bound = action_lower_bound
@@ -55,82 +52,54 @@ class DDPG(object):
 
         self.sess.run(tf.compat.v1.global_variables_initializer())
 
+
     def build_actor(self, states, scope, trainable):
         with tf.compat.v1.variable_scope(scope):
-            net = tf.compat.v1.layers.dense(states, 30, activation=tf.nn.relu, name='l1', trainable=trainable)
-            a = tf.compat.v1.layers.dense(net, self.action_size, activation=tf.nn.tanh, name='a', trainable=trainable)
-            return tf.multiply(a, self.action_upper_bound, name='scaled_a')
+            out = tf.compat.v1.layers.dense(states, 128, trainable=trainable)
+            out = tf.nn.relu(out)
+            out = tf.compat.v1.layers.dense(out, 64, trainable=trainable)
+            out = tf.nn.relu(out)
+            out = tf.compat.v1.layers.dense(out, 1, trainable=trainable) 
+            out = tf.tanh(out)*2
+            return out
 
     def build_critic(self, states, actions, scope, trainable):
         with tf.compat.v1.variable_scope(scope):
-            n_l1 = 30
-            w1_s = tf.compat.v1.get_variable('w1_s', [self.state_size, n_l1], trainable=trainable)
-            w1_a = tf.compat.v1.get_variable('w1_a', [self.action_size, n_l1], trainable=trainable)
-            b1 = tf.compat.v1.get_variable('b1', [1, n_l1], trainable=trainable)
-            net = tf.nn.relu(tf.matmul(states, w1_s) + tf.matmul(actions, w1_a) + b1)
-            return tf.compat.v1.layers.dense(net, 1, trainable=trainable)  # Q(s,a)
+            q = tf.keras.layers.Concatenate()([states, actions])    
+            q = tf.compat.v1.layers.dense(q, 128, trainable=trainable)
+            q = tf.nn.relu(q)
+            q = tf.compat.v1.layers.dense(q, 64, trainable=trainable)
+            q = tf.nn.relu(q)
+            q = tf.compat.v1.layers.dense(q, 1, trainable = trainable)
+            return q  # Q(s,a)
 
     def act(self, states):
         return np.clip(np.random.normal(self.sess.run(self.actions, {self.states: states[np.newaxis, :]})[0], self.config.STAND_DEV), self.action_lower_bound, self.action_upper_bound)
-
+        
     def train(self):
-        if self.config.MEM_SETTING == 'np':
-            self.config.STAND_DEV *= .9995
+        self.config.STAND_DEV *= .9995
 
-            # soft target replacement
-            self.sess.run(self.soft_replace)
+        # soft target replacement
+        self.sess.run(self.soft_replace)
 
-            indices = np.random.choice(self.config.MEMORY_CAPACITY, size=self.config.BATCH_SIZE)
-            bt = self.memory[indices, :]
-            bs = bt[:, :self.state_size]
-            ba = bt[:, self.state_size: self.state_size + self.action_size]
-            br = bt[:, -self.state_size - 1: -self.state_size]
-            bs_ = bt[:, -self.state_size:]
+        indices = np.random.choice(self.config.MEMORY_CAPACITY, size=self.config.BATCH_SIZE)
+        bt = self.memory[indices, :]
+        bs = bt[:, :self.state_size]
+        ba = bt[:, self.state_size: self.state_size + self.action_size]
+        br = bt[:, -self.state_size - 1: -self.state_size]
+        bs_ = bt[:, -self.state_size:]
 
-            #print('memory buffer', self.memory.shape)
-            #print('states shape', bs.shape)
-            #print('actions shape', ba.shape)
-            #print('rewards shape', br.shape)
-            #print('next_states shape', bs_.shape)
+        #print('memory buffer', self.memory.shape)
+        #print('states shape', bs.shape)
+        #print('actions shape', ba.shape)
+        #print('rewards shape', br.shape)
+        #print('next_states shape', bs_.shape)
 
-            self.sess.run(self.actor_optimizer, {self.states: bs})
-            self.sess.run(self.critic_optimizer, {self.states: bs, self.actions: ba, self.rewards : br, self.next_states: bs_})
-
-        else:
-            # decrease the epsilon value
-            #self.config.EPSILON *= self.config.EPSILON_DECAY
-            self.config.STAND_DEV *= self.config.EPSILON_DECAY
-
-            field_names = ['state', 'action', 'reward', 'next_state']
-            batch_data = {}
-
-            # randomly sample from the replay experience que
-            replay_batch = random.sample(self.memory, self.config.BATCH_SIZE)
-            for i in range(len(field_names)):
-                batch_data[field_names[i]] = [data for data in list(zip(*replay_batch))[i]]
-            
-            #print('\nmemory buffer', np.array(self.memory).shape)
-            #print('states shape', np.array(batch_data['state']).shape)
-            #print('actions shape', np.array(batch_data['action']).shape)
-            #print('rewards shape', np.array(batch_data['reward']).shape)
-            #print('next_states shape', np.array(batch_data['next_state']).shape)
-          
-            self.sess.run(self.actor_optimizer, {self.states: np.array(batch_data['state'])})
-            self.sess.run(self.critic_optimizer, {self.states: np.array(batch_data['state']),
-                                                self.actions: np.array(batch_data['action']),
-                                                self.rewards: np.array(batch_data['reward']),
-                                                self.next_states: np.array(batch_data['next_state'])})
+        self.sess.run(self.actor_optimizer, {self.states: bs})
+        self.sess.run(self.critic_optimizer, {self.states: bs, self.actions: ba, self.rewards : br, self.next_states: bs_})
 
     def remember(self, state, action, reward, next_state):
-        if self.config.MEM_SETTING == 'np':
-            transition = np.hstack((state, action, [reward], next_state))
-            index = self.config.COUNTER % self.config.MEMORY_CAPACITY  # replace the old memory with new memory
-            self.memory[index, :] = transition
-            self.config.COUNTER += 1
-
-        else:
-            # add 1 to the pointer
-            self.config.COUNTER += 1
-
-            # store in the replay experience queue
-            self.memory.append((state, action, [reward], next_state))
+        transition = np.hstack((state, action, [reward], next_state))
+        index = self.config.COUNTER % self.config.MEMORY_CAPACITY  # replace the old memory with new memory
+        self.memory[index, :] = transition
+        self.config.COUNTER += 1

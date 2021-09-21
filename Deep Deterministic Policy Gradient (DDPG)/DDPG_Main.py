@@ -2,11 +2,11 @@
 import numpy as np
 from collections import deque
 import sys
-
+from matplotlib import pyplot as plt
 import gym
 import tensorflow as tf
-from ddpg_networks import DDPG
-from ddpg_config import Config
+from DDPG_Networks import DDPG
+from DDPG_Config import Config
 
 
 # set the config class
@@ -22,15 +22,15 @@ if __name__ == "__main__":
     action_size = env.action_space.shape[0]             #1
 
     # upper bound of the action space
-    action_upper_bound = env.action_space.high[0]
-    action_lower_bound = env.action_space.low[0]
+    action_upper_bound = env.action_space.high[0]       # 2
+    action_lower_bound = env.action_space.low[0]        # -2
 
     # ddpg is specifically adapted for environments with continuous action spaces
     sess = tf.compat.v1.Session()
     ddpg = DDPG(sess, config, state_size, action_size, action_lower_bound, action_upper_bound)
 
     step = 0
-    return_lst = deque(maxlen = 30)
+    return_lst = []
     for episode in range(config.EPISODES):
         # for each episode, reset the environment
         state = env.reset()
@@ -67,10 +67,15 @@ if __name__ == "__main__":
 
             # if the episode is finished, go to the next episode
             if done:
-                print("Episode: %i / %i,\tScore: %i,\tPointer: %i,\tStandard Deviation: %.4f,\tExploration Rate: %.4f" % (episode, config.EPISODES, score, config.COUNTER, config.STAND_DEV, config.EPSILON))
+                print("Episode: %i / %i,\tScore: %i,\tPointer: %i,\tStandard Deviation: %.4f" % (episode, config.EPISODES, score, config.COUNTER, config.STAND_DEV))
                 return_lst.append(score)
                 break
         
-        if np.mean(return_lst) > -200:
-            print("Goal Accomplished!")
+        if np.mean(return_lst[-30:]) > -150:
+            print("\n\t\t\t\t\t\tGoal Accomplished!\t\t\t\t\t\t\n")
+            plt.plot(return_lst)
+            plt.title("Return over Episodes")
+            plt.xlabel("Episodes")
+            plt.ylabel("Return")
+            plt.savefig("Return Graph.png")
             sys.exit()
