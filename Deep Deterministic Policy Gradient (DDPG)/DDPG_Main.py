@@ -79,6 +79,7 @@ if __name__ == "__main__":
     
     plt.plot(return_lst, linewidth=0.6, label='Episode Return')
     plt.axvline(training_started, linewidth=2, color="r", label='Training Phase Began')
+    plt.legend()
     plt.title("Return over Episodes")
     plt.xlabel("Episodes")
     plt.ylabel("Return")
