@@ -12,6 +12,7 @@ Note that DQN was implemented using Keras while DDPG and SAC were implemented at
 ## Deep Q-Networks (DQN)
 DQN is a reinforcement learning algorithm that combines Q-learning and deep neural networks. DQN approximates a state-value function in the Q-learning framework with a neural network. It utilizes off-policy learning by using Experience Replay from which random samples (could be prioritized) are drawn for training. Experience Replay usually contains a specified number of recent (state, action, next state, reward). 
 
+
 # Policy Gradients + Q-Learning
 ## Deep Deterministic Policy Gradient (DDPG)
 
