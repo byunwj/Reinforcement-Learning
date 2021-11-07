@@ -7,7 +7,7 @@ Note that DQN was implemented using Keras while DDPG and SAC were implemented at
 
 
 # Q-Learning
- While in Markov Process (MP), the transition probability dictates the next state from one state, in MDP, action dictates the next state from one state. And there ares consequences of taking a certain action in every state, which we call "rewards". The idea of Q-learning is to learn the optimal policy in a Markov Decision Process (MDP). 
+ While in Markov Process (MP), the transition probability dictates the next state from one state, in MDP, the action dictates the next state from one state. And there ares consequences of taking a certain action in every state, which we call "rewards". The idea of Q-learning is to learn the optimal policy in a Markov Decision Process (MDP). 
 
 # Deep Q-Learning
 ## Deep Q-Networks (DQN)
