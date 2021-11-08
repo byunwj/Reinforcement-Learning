@@ -59,7 +59,6 @@ class DQNAgent():
         actions = list(batch[1]); reward = list(batch[2]); done = list(batch[4])
         
         current_q = self.model.predict(state) #initializing with current weights
-        #target_q = self.model.predict(next_state) #using the same weights in the network as the current_q
         next_q = self.target_model.predict(next_state) #using the target network
 
         #update the current_q to be closer to the optimal q values using bellman
