@@ -104,7 +104,7 @@ class DQNAgent():
                     reward = -100
                     self.add_experience(state, action, reward, next_state, done)
                     score += 1
-                    print("episodes: {} \t score: {} \t epsilon: {} \t step: {}".format(ep+1, score, self.epsilon, self.counter))
+                    print("Episode: {} \t Score: {} \t epsilon: {} \t Pointer: {}".format(ep+1, score, self.epsilon, self.counter))
                     if score == 500:
                         print("\n\t\t\t\t\t\tGoal Accomplished!\t\t\t\t\t\t\n")
                         return_lst.append(score)

@@ -83,4 +83,4 @@ if __name__ == "__main__":
     plt.title("Return over Episodes")
     plt.xlabel("Episodes")
     plt.ylabel("Return")
-    plt.savefig("Return Graph.png")
+    plt.savefig("Return Graph (reward normalization).png")

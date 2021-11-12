@@ -13,7 +13,11 @@ class SAC(object):
         self.config = config
         self.sess = sess 
         self.memory = np.zeros((self.config.MEMORY_CAPACITY, state_size * 2 + action_size + 1), dtype=np.float32)
-
+        self.reward_memory = deque(maxlen =  self.config.MEMORY_CAPACITY)
+        self.recent_reward = deque(maxlen =  1000)
+        self.reward_norm_steps  = 200
+        self.reward_mean        = 1
+        
         self.state_size = state_size
         self.action_size = action_size
         self.action_lower_bound = action_lower_bound
@@ -174,6 +178,20 @@ class SAC(object):
 
 
     def remember(self, state, action, reward, next_state):
+        # store the unnormalized reward
+        self.reward_memory.append(reward)
+        self.recent_reward.append(reward)
+
+        if self.config.COUNTER % self.reward_norm_steps == 0: # updates the reward mean and standard deviation every n steps
+            self.reward_mean = np.min(self.reward_memory)
+            
+            print("rewards normalization updated; mean of the last 1000 rewards:{}".format(np.mean(self.recent_reward)))
+            print("rewards normalization updated; mean of the last 20000 rewards:{}".format(np.mean(self.reward_memory)))
+        
+        if self.config.COUNTER > self.config.MEMORY_CAPACITY*0.1:
+            if reward != 0:
+                reward = -reward/(self.reward_mean + 1e-6)
+
         transition = np.hstack((state, action, [reward], next_state))
         index = self.config.COUNTER % self.config.MEMORY_CAPACITY  # replace the old memory with new memory
         self.memory[index, :] = transition
