@@ -52,7 +52,7 @@ if __name__ == "__main__":
             sac.remember(state, action, reward, next_state)
 
             # if there are enough instances in the replay experience queue, start the training
-            if config.COUNTER > config.MEMORY_CAPACITY:
+            if config.COUNTER > config.MEMORY_CAPACITY*1.1:
                 if training_started == None:
                     training_started = episode
                 sac.train()

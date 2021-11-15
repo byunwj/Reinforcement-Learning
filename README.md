@@ -12,15 +12,24 @@ Note that DQN was implemented using Keras while DDPG and SAC were implemented at
 
 # Deep Q-Learning
 ## Deep Q-Networks (DQN)
-DQN is a reinforcement learning algorithm that combines Q-learning and deep neural networks. DQN approximates the action-value function in the Q-learning framework with a neural network. It utilizes off-policy learning by using Experience Replay from which random samples (could be prioritized) are drawn for training. Experience Replay usually contains a specified number of recent (state, action, next state, reward). Since DQN learns the action-value function, it is a value-based approach. 
+DQN is a reinforcement learning algorithm that combines Q-learning and deep neural networks. DQN approximates the action-value function in the Q-learning framework with a neural network. It utilizes off-policy learning by using Experience Replay from which random samples (could be prioritized) are drawn for training. Experience Replay usually contains a specified number of recent (state, action, next state, reward). Since DQN learns the action-value function, it is a value-based approach. Once trained, the agent can just take the action incurs the highest action-value given a state. 
 
 # Policy Gradients + Q-Learning (Actor - Critic)
-While Policy Gradient algorithms are policy-based since they approximate the policy function direcly, DDPG and SAC try to approximate both the action-value and policy functions, and, thus, called Actor-Critic. 
+While Policy Gradient algorithms are policy-based since they approximate the policy function direcly, DDPG and SAC try to approximate both the action-value and policy functions, and, thus, called Actor-Critic. The Actor represents the policy, and the Critic represents the action-value function.  
 
 ## Deep Deterministic Policy Gradient (DDPG)
+One of the main purposes of DDPG is to incorporate continous action space with Deep Q-Learning. 
+Since in DQN, the agent takes the action that incurs the highest action-value, calculating all the possible action-values can become very tricky (or even impossible) especially if the action space is continous and high dimensional. 
+
 
 ## Soft Actor Critic (SAC)
 
 
+
+# References:
+1. DQN Paper
+2. DDPG Paper
+3. SAC Paper
+4. SAC + PER
 
 

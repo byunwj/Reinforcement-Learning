@@ -183,7 +183,7 @@ class SAC(object):
         self.recent_reward.append(reward)
 
         if self.config.COUNTER % self.reward_norm_steps == 0: # updates the reward mean and standard deviation every n steps
-            self.reward_mean = np.min(self.reward_memory)
+            self.reward_mean = np.mean(self.reward_memory)
             
             print("rewards normalization updated; mean of the last 1000 rewards:{}".format(np.mean(self.recent_reward)))
             print("rewards normalization updated; mean of the last 20000 rewards:{}".format(np.mean(self.reward_memory)))
