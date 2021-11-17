@@ -190,7 +190,7 @@ class SAC(object):
         
         if self.config.COUNTER > self.config.MEMORY_CAPACITY*0.1:
             if reward != 0:
-                reward = -reward/(self.reward_mean + 1e-6)
+                reward = (reward - self.reward_mean)/( np.std(self.reward_memory) + 1e-6)
 
         transition = np.hstack((state, action, [reward], next_state))
         index = self.config.COUNTER % self.config.MEMORY_CAPACITY  # replace the old memory with new memory
