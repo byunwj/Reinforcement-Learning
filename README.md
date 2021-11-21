@@ -23,7 +23,7 @@ In DQN, the agent takes the action that incurs the highest action-value by compu
 
 
 ## Soft Actor Critic (SAC)
-
+SAC shares the same approach with DDPG in general. However, SAC's central features are entropy regularization and stochastic policy optimization. SAC tries to maximize the tradeoff between expected return and entropy, which is a measure of randomness of the policy. By also focusing on the entropy of the policy, SAC can prevent its policy from prematurely converging to a local optimum. Also, the noise from the stochasticity of the policy brings the similar effect of target policy smoothing. 
 
 
 # References:
