@@ -32,8 +32,9 @@ class SAC(object):
 
         with tf.compat.v1.variable_scope('Actor'):
             self.mu, self.std, self.actions, self.log_pi = self.build_actor(self.states, scope='eval', trainable=True) 
-            _, _, self.actions_next, self.log_pi_next = self.build_actor(self.next_states, scope='target', trainable= False) 
-
+            #_, _, self.actions_next, self.log_pi_next = self.build_actor(self.next_states, scope='target', trainable= False) 
+            _, _, self.actions_next, self.log_pi_next = self.build_actor(self.next_states, scope='eval', trainable= True) 
+            
         with tf.compat.v1.variable_scope('Critic'):
             q1 = self.build_critic(self.states, self.actions, scope='eval1', trainable=True)
             q2 = self.build_critic(self.states, self.actions, scope='eval2', trainable=True)
@@ -44,7 +45,7 @@ class SAC(object):
 
         # networks parameters
         self.actor_params = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES, scope='Actor/eval')
-        self.actor_t_params = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES, scope='Actor/target')
+        #self.actor_t_params = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES, scope='Actor/target')
         
         self.critic1_params = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES, scope='Critic/eval1')
         self.critic1_t_params = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES, scope='Critic/target1')
@@ -56,7 +57,7 @@ class SAC(object):
         # target net replacement (two targets for the two q-networks)
         self.soft_replace_critic1 = [tf.compat.v1.assign(t, (1 - self.config.TAU) * t + self.config.TAU * e) for t, e in zip(self.critic1_t_params, self.critic1_params)]
         self.soft_replace_critic2 = [tf.compat.v1.assign(t, (1 - self.config.TAU) * t + self.config.TAU * e) for t, e in zip(self.critic2_t_params, self.critic2_params)]
-        self.soft_replace_actor = [tf.compat.v1.assign(t, (1 - self.config.TAU) * t + self.config.TAU * e) for t, e in zip(self.actor_t_params, self.actor_params)]
+        #self.soft_replace_actor = [tf.compat.v1.assign(t, (1 - self.config.TAU) * t + self.config.TAU * e) for t, e in zip(self.actor_t_params, self.actor_params)]
 
         
         # Apply the clipped double Q trick --> Get the minimum Q value of the 2 target q-networks
@@ -84,7 +85,7 @@ class SAC(object):
 
     # policy sampling will be restricted to -1 to +1 with a tanh function
     def build_actor(self, states, scope, trainable):
-        with tf.compat.v1.variable_scope(scope):
+        with tf.compat.v1.variable_scope(scope, reuse = tf.compat.v1.AUTO_REUSE):
             n_l1 = 256
             prob = tf.compat.v1.layers.dense(states, n_l1, trainable=trainable)
             prob = tf.nn.relu(prob)
@@ -160,16 +161,15 @@ class SAC(object):
         #print('next_states shape', bs_.shape)
 
 
-        self.sess.run(self.actor_optimizer, {self.states: bs})
-        self.sess.run(self.critic1_optimizer, {self.states: bs, self.actions: ba, self.rewards : br, self.next_states: bs_})
-        self.sess.run(self.critic2_optimizer, {self.states: bs, self.actions: ba, self.rewards : br, self.next_states: bs_})
+        self.sess.run([self.actor_optimizer, self.critic1_optimizer, self.critic2_optimizer], \
+                     {self.states: bs, self.actions: ba, self.rewards : br, self.next_states: bs_})
+        #self.sess.run(self.critic1_optimizer, {self.states: bs, self.actions: ba, self.rewards : br, self.next_states: bs_})
+        #self.sess.run(self.critic2_optimizer, {self.states: bs, self.actions: ba, self.rewards : br, self.next_states: bs_})
         #self.sess.run(self.alpha_optimizer, {self.states: bs})
 
 
         # soft target replacement
-        self.sess.run(self.soft_replace_actor)
-        self.sess.run(self.soft_replace_critic1)
-        self.sess.run(self.soft_replace_critic2)
+        self.sess.run([self.soft_replace_critic1, self.soft_replace_critic2])
         
         #mu = np.mean(self.sess.run(self.mu, {self.states: bs}))
         #std = np.mean(self.sess.run(self.std, {self.states: bs}))
