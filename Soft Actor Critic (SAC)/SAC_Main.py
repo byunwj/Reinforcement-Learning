@@ -52,7 +52,7 @@ if __name__ == "__main__":
             sac.remember(state, action, reward, next_state)
 
             # if there are enough instances in the replay experience queue, start the training
-            if config.COUNTER > config.MEMORY_CAPACITY*1.1:
+            if config.COUNTER > config.MEMORY_CAPACITY:
                 if training_started == None:
                     training_started = episode
                 sac.train()
@@ -79,6 +79,7 @@ if __name__ == "__main__":
     
     plt.plot(return_lst, linewidth=0.6, label='Episode Return')
     plt.axvline(training_started, linewidth=2, color="r", label='Training Phase Began')
+    plt.axhline(np.array(return_lst[-200:]).mean(), color = "orange", label = 'Mean Return of Last 200 Episodes')
     plt.legend()
     plt.title("Return over Episodes")
     plt.xlabel("Episodes")

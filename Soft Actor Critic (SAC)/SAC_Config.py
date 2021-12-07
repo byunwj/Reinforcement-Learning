@@ -3,7 +3,7 @@
 class Config(object):
     def __init__(self):
         # parameters
-        self.BATCH_SIZE = 256
+        self.BATCH_SIZE = 128
         self.EPISODES = 400
         self.ACTOR_LR = 0.001                 # actor learning rate
         self.CRITIC_LR = 0.002                # critic learning rate

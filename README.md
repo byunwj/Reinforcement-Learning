@@ -26,6 +26,23 @@ In DQN, the agent takes the action that incurs the highest action-value by compu
 SAC shares the same approach with DDPG in general. However, SAC's central features are entropy regularization and stochastic policy optimization. SAC tries to maximize the tradeoff between expected return and entropy, which is a measure of randomness of the stochastic policy. The higher the entropy, the more evenly distributed the probabilities of possible actions. Thus, by including the entropy term in the target Q (optimal Q), SAC forces its policy to explore more actions
 which can prevent its policy from prematurely converging to a local optimum. Also, the stochastic policy of SAC learns the mean and standard deviation of the action distribution. When the agent needs to take an action, a single action is then sampled from the distribution. The sampling process inherently adds noise to the policy which brings the similar effect of target policy smoothing (a technique used in Twin Delayed DDPG (TD3) algorithm). 
 
+# Implementation
+The DQN implementation solves the CartPole problem from OPENAI Gym environment, and the DDPG and SAC implementations solve the Pendulum problem from OPENAI Gym environment. I've generated a return graph for each implementation to see how the return of each episode changes overtime as the agent goes through training. While DQN and DDPG has only one 'version', SAC was implemented with a couple of add-ons such as reward normalization and Prioritized Experience Replay (PER) which were compared with the version without any add-ons. 
+
+The following comparisons were made:
+1. DDPG vs. SAC
+2. SAC  vs. SAC with reward normalization
+3. SAC  vs. SAC with PER
+Comparisons were made based on the return graphs and the returns of the last 200 episodes.  
+Comparing DDPG and SAC's return graphs, we can see that the return graph of SAC is slightly more stable than that of DDPG as there are no returns less than -500 after episode 100 (which seems to be just slightly after the return starts to converge) for SAC while there is a few returns that spike under -500 for DDPG. Comparing SAC and SAC with reward normalization, there seems to be no advantage in applying reward normalization. In fact, SAC **without** reward normalization seems to converge earlier (before episode 100 while SAC with reward normalization converges around episode 150-200), and it seems that steadiness after converging is not necessarily improved by addding reward normalization at least in this example. 
+
+<!---
+need to compare the last 200 return for
+DDPG vs. SAC
+SAC vs. SAC w/ reward norm
+SAC vs. SAC w/ PER 
+-->
+
 
 # References:
 1. [DQN](https://arxiv.org/abs/1312.5602)
