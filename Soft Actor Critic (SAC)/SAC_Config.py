@@ -1,5 +1,3 @@
-# sean sungil kim
-
 class Config(object):
     def __init__(self):
         # parameters

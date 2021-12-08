@@ -1,4 +1,3 @@
-# sean sungil kim
 import numpy as np
 from collections import deque
 import sys

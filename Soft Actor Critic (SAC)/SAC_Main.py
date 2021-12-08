@@ -1,6 +1,4 @@
-# sean sungil kim
 import numpy as np
-
 import gym
 import tensorflow as tf
 from SAC_Networks import SAC
@@ -9,10 +7,11 @@ from collections import deque
 from matplotlib import pyplot as plt
 import sys
 
-# set the config class
-config = Config()
 
-if __name__ == "__main__":
+
+def run_main(mode = None):
+    # set the config class
+    config = Config()
     tf.compat.v1.reset_default_graph()
     tf.compat.v1.disable_eager_execution()
     env = gym.make('Pendulum-v0')
@@ -85,3 +84,7 @@ if __name__ == "__main__":
     plt.xlabel("Episodes")
     plt.ylabel("Return")
     plt.savefig("Return Graph (reward normalization).png")
+
+if __name__ == "__main__":
+    mode = 'PER'
+    run_main()
