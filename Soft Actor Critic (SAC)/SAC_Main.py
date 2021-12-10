@@ -9,7 +9,7 @@ import sys
 
 
 
-def run_main(mode = None):
+def run_main(normalize, PER):
     config = Config()
     tf.compat.v1.reset_default_graph()
     tf.compat.v1.disable_eager_execution()
@@ -26,7 +26,7 @@ def run_main(mode = None):
 
     sess = tf.compat.v1.Session()
     alpha = 0.05
-    sac = SAC(sess, config, state_size, action_size, action_lower_bound, action_upper_bound, alpha)
+    sac = SAC(sess, config, state_size, action_size, action_lower_bound, action_upper_bound, alpha, normalize, PER)
 
     step = 0
     return_lst = []
@@ -54,36 +54,42 @@ def run_main(mode = None):
                 if training_started == None:
                     training_started = episode
                 sac.train()
-                # actor_loss, critic_loss = ddpg.train()
-                #print("Actor Loss: %.4f,\tCritic Loss: %.4f" % (actor_loss, critic_loss))
-                #break
-            # update the target_model every N steps
-            #if step % config.TARGET_UPDATE_STEP == 0:
-            #    ddpg.update_target_model()
 
-            # t + 1
             # go to the next state
             state = next_state
             score += reward
 
             # if the episode is finished, go to the next episode
             if done:
-                print("Episode: %i / %i,\tScore: %i,\tPointer: %i" % (episode, config.EPISODES, score, config.COUNTER))
+                if len(return_lst) > 30:
+                    print("Episode: %i / %i,\tScore: %i,\tPointer: %i, \tMean Return for last 30: %i" % (episode, config.EPISODES, score, config.COUNTER, round(np.mean(return_lst[-30:])) ))
+                else:
+                    print("Episode: %i / %i,\tScore: %i,\tPointer: %i" % (episode, config.EPISODES, score, config.COUNTER))
                 return_lst.append(score)
                 break
         
         if np.mean(return_lst[-30:]) > -150:
-            print("\n\t\t\t\t\t\tGoal Accomplished!\t\t\t\t\t\t\n")
+            print("\n\n\t\t\t\tGoal Accomplished!\n\n")
+
+    plotting(return_lst, training_started, normalize, PER)
     
-    plt.plot(return_lst, linewidth=0.6, label='Episode Return')
+
+def plotting(return_lst, training_started, normalize, PER):
+    plt.plot(return_lst, color = 'blue', linewidth=0.6, label='Episode Return')
+
+    plt.fill_between( [i for i in range(len(return_lst))],   
+                      return_lst + np.std(return_lst)/2, 
+                      return_lst - np.std(return_lst)/2,
+                      color = 'blue', alpha = 0.3 )
+  
     plt.axvline(training_started, linewidth=2, color="r", label='Training Phase Began')
-    plt.axhline(np.array(return_lst[-200:]).mean(), color = "orange", label = 'Mean Return of Last 200 Episodes')
-    plt.legend()
+    plt.axhline(np.array(return_lst[-100:]).mean(), color = "orange", label = 'Mean Return of Last 100 Episodes: {}'.format(round(np.array(return_lst[-100:]).mean())))
+    plt.legend(loc = 'lower right')
     plt.title("Return over Episodes")
     plt.xlabel("Episodes")
     plt.ylabel("Return")
-    plt.savefig("Return Graph (reward normalization).png")
+    title = 'Return Graph - Reward Normalization: {} & PER: {}'.format(normalize, PER)
+    plt.savefig(title)
 
 if __name__ == "__main__":
-    mode = 'PER'
-    run_main()
+    run_main(normalize = True, PER = False)

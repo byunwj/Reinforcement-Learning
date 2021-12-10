@@ -5,10 +5,11 @@ import random
 
 
 class SAC(object):
-    def __init__(self, sess, config, state_size, action_size, action_lower_bound, action_upper_bound, alpha):
+    def __init__(self, sess, config, state_size, action_size, action_lower_bound, action_upper_bound, alpha, normalize, PER):
         # initialize the parameters and the model
         self.eps = 1e-6
         self.alpha = alpha
+        self.train_num = 0 
 
         self.config = config
         self.sess = sess 
@@ -16,7 +17,8 @@ class SAC(object):
         self.reward_memory = deque(maxlen =  self.config.MEMORY_CAPACITY)
         self.recent_reward = deque(maxlen =  1000)
         self.reward_norm_steps  = 200
-        self.reward_mean        = 1
+        self.reward_mean = 1
+        self.normalize = normalize
         
         # for Prioritized Experience Replay (PER)
         self.priorities = np.zeros((self.config.MEMORY_CAPACITY,), dtype=np.float32)
@@ -25,6 +27,7 @@ class SAC(object):
         self.frame = 1 #for beta calculation
         self.pos = 0
         self.per_alpha = 0.6
+        self.PER = PER
 
         self.state_size = state_size
         self.action_size = action_size
@@ -79,15 +82,14 @@ class SAC(object):
         td_error1 = tf.compat.v1.losses.mean_squared_error(labels = y, predictions=q1)
         td_error2 = tf.compat.v1.losses.mean_squared_error(labels = y, predictions=q2)
 
-        self.td_error1_weighted = td_error1*self.weights
-        self.td_error2_weighted = td_error2*self.weights
-        self.updated_priorities = abs( ( (y-q1) + (y-q2) )/2 + 1e-5  )
+        if self.PER:
+            td_error1 = td_error1*self.weights
+            td_error2 = td_error2*self.weights
+            self.updated_priorities = abs( ( (y-q1) + (y-q2) )/2 + 1e-5  ) 
 
         # two separate optimizers for the two q-networks
-        self.critic1_optimizer = tf.compat.v1.train.AdamOptimizer(self.config.CRITIC_LR).minimize(self.td_error1_weighted, var_list=self.critic1_params)
-        self.critic2_optimizer = tf.compat.v1.train.AdamOptimizer(self.config.CRITIC_LR).minimize(self.td_error2_weighted, var_list=self.critic2_params)
-        #self.critic1_optimizer = tf.compat.v1.train.AdamOptimizer(self.config.CRITIC_LR).minimize(td_error1, var_list=self.critic1_params)
-        #self.critic2_optimizer = tf.compat.v1.train.AdamOptimizer(self.config.CRITIC_LR).minimize(td_error2, var_list=self.critic2_params)
+        self.critic1_optimizer = tf.compat.v1.train.AdamOptimizer(self.config.CRITIC_LR).minimize(td_error1, var_list=self.critic1_params)
+        self.critic2_optimizer = tf.compat.v1.train.AdamOptimizer(self.config.CRITIC_LR).minimize(td_error2, var_list=self.critic2_params)
         
         # Get the minimum Q value of the 2 q-networks
         min_q = tf.minimum(q1, q2)
@@ -161,37 +163,44 @@ class SAC(object):
     
         
     def train(self):
-        #indices = np.random.choice(self.config.MEMORY_CAPACITY, size=self.config.BATCH_SIZE)
-        #bt = self.memory[indices, :]
-        #bs = bt[:, :self.state_size]
-        #ba = bt[:, self.state_size: self.state_size + self.action_size]
-        #br = bt[:, -self.state_size - 1: -self.state_size]
-        #bs_ = bt[:, -self.state_size:]
+        if self.train_num == 0:
+            print('\n\n\t\t\t\t Training Starts \n\n')
 
-        # prioritized sampling
-        indices, weights = self.get_indices()
-        weights = np.expand_dims(weights, axis=1) # so that it can be a tensor input with shape (128, 1)
-        bt = self.memory[indices, :]
-        bs = bt[:, :self.state_size]
-        ba = bt[:, self.state_size: self.state_size + self.action_size]
-        br = bt[:, -self.state_size - 1: -self.state_size]
-        bs_ = bt[:, -self.state_size:]
+        if self.PER:        
+            # prioritized sampling
+            indices, weights = self.get_indices()
+            weights = np.expand_dims(weights, axis=1) # so that it can be a tensor input with shape (128, 1)
+            bt = self.memory[indices, :]
+            bs = bt[:, :self.state_size]
+            ba = bt[:, self.state_size: self.state_size + self.action_size]
+            br = bt[:, -self.state_size - 1: -self.state_size]
+            bs_ = bt[:, -self.state_size:]
 
-        self.sess.run(self.actor_optimizer, {self.states: bs})
-        self.sess.run(self.critic1_optimizer, {self.states: bs, self.actions: ba, self.rewards : br, self.next_states: bs_, self.weights: weights})
-        self.sess.run(self.critic2_optimizer, {self.states: bs, self.actions: ba, self.rewards : br, self.next_states: bs_, self.weights: weights})
-        updated_priorities = self.sess.run(self.updated_priorities, {self.states: bs, self.actions: ba, self.rewards : br, self.next_states: bs_, self.weights: weights})
-        #self.sess.run(self.alpha_optimizer, {self.states: bs})
+            self.sess.run(self.actor_optimizer, {self.states: bs})
+            self.sess.run(self.critic1_optimizer, {self.states: bs, self.actions: ba, self.rewards : br, self.next_states: bs_, self.weights: weights})
+            self.sess.run(self.critic2_optimizer, {self.states: bs, self.actions: ba, self.rewards : br, self.next_states: bs_, self.weights: weights})
+            updated_priorities = self.sess.run(self.updated_priorities, {self.states: bs, self.actions: ba, self.rewards : br, self.next_states: bs_, self.weights: weights})
+            self.update_priorities(indices, updated_priorities.squeeze(1))
 
-        self.update_priorities(indices, updated_priorities.squeeze(1))
+        else:
+            # random sampling
+            indices = np.random.choice(self.config.MEMORY_CAPACITY, size=self.config.BATCH_SIZE)
+            bt = self.memory[indices, :]
+            bs = bt[:, :self.state_size]
+            ba = bt[:, self.state_size: self.state_size + self.action_size]
+            br = bt[:, -self.state_size - 1: -self.state_size]
+            bs_ = bt[:, -self.state_size:]
+            self.sess.run(self.actor_optimizer, {self.states: bs})
+            self.sess.run(self.critic1_optimizer, {self.states: bs, self.actions: ba, self.rewards : br, self.next_states: bs_})
+            self.sess.run(self.critic2_optimizer, {self.states: bs, self.actions: ba, self.rewards : br, self.next_states: bs_})
+         
 
         # soft target replacement
         self.sess.run(self.soft_replace_actor)
         self.sess.run(self.soft_replace_critic1)
         self.sess.run(self.soft_replace_critic2)
-        
-        #mu = np.mean(self.sess.run(self.mu, {self.states: bs}))
-        #std = np.mean(self.sess.run(self.std, {self.states: bs}))
+
+        self.train_num += 1
 
 
     def remember(self, state, action, reward, next_state):
@@ -207,10 +216,11 @@ class SAC(object):
             print("rewards normalization updated; mean of the last 1000 rewards:{}".format(np.mean(self.recent_reward)))
             print("rewards normalization updated; mean of the last 20000 rewards:{}".format(np.mean(self.reward_memory)))
         
-        if self.config.COUNTER > self.config.MEMORY_CAPACITY*0.1:
-            if reward != 0:
-                reward = (reward - self.reward_mean)/( np.std(self.reward_memory) + 1e-6)
-
+        if self.normalize:
+            if self.config.COUNTER > self.config.MEMORY_CAPACITY*0.1:
+                if reward != 0:
+                    reward = (reward - self.reward_mean)/( np.std(self.reward_memory) + 1e-6)
+        
         transition = np.hstack((state, action, [reward], next_state))
         index = self.config.COUNTER % self.config.MEMORY_CAPACITY  # replace the old memory with new memory
         self.memory[index, :] = transition
