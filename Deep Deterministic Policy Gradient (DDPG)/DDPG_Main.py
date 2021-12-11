@@ -10,9 +10,8 @@ from DDPG_Config import Config
 
 
 # set the config class
-config = Config()
-
-if __name__ == "__main__":
+def run_main():
+    config = Config()
     tf.compat.v1.reset_default_graph()
     tf.compat.v1.disable_eager_execution()
     env = gym.make('Pendulum-v0')
@@ -22,10 +21,9 @@ if __name__ == "__main__":
     action_size = env.action_space.shape[0]             #1
 
     # upper bound of the action space
-    action_upper_bound = env.action_space.high[0]       # 2
-    action_lower_bound = env.action_space.low[0]        # -2
+    action_upper_bound = env.action_space.high[0]
+    action_lower_bound = env.action_space.low[0]
 
-    # ddpg is specifically adapted for environments with continuous action spaces
     sess = tf.compat.v1.Session()
     ddpg = DDPG(sess, config, state_size, action_size, action_lower_bound, action_upper_bound)
 
@@ -55,31 +53,42 @@ if __name__ == "__main__":
                 if training_started == None:
                     training_started = episode
                 ddpg.train()
-                # actor_loss, critic_loss = ddpg.train()
-                #print("Actor Loss: %.4f,\tCritic Loss: %.4f" % (actor_loss, critic_loss))
-                #break
-            # update the target_model every N steps
-            #if step % config.TARGET_UPDATE_STEP == 0:
-            #    ddpg.update_target_model()
 
-            # t + 1
             # go to the next state
             state = next_state
             score += reward
 
             # if the episode is finished, go to the next episode
             if done:
-                print("Episode: %i / %i,\tScore: %i,\tPointer: %i,\tStandard Deviation: %.4f" % (episode, config.EPISODES, score, config.COUNTER, config.STAND_DEV))
+                if len(return_lst) > 30:
+                    print("Episode: %i / %i,\tScore: %i,\tPointer: %i, \tMean Return for last 30: %i" % (episode, config.EPISODES, score, config.COUNTER, round(np.mean(return_lst[-30:])) ))
+                else:
+                    print("Episode: %i / %i,\tScore: %i,\tPointer: %i" % (episode, config.EPISODES, score, config.COUNTER))
                 return_lst.append(score)
                 break
         
         if np.mean(return_lst[-30:]) > -150:
-            print("\n\t\t\t\t\t\tGoal Accomplished!\t\t\t\t\t\t\n")
+            print("\n\n\t\t\t\tGoal Accomplished!\n\n")
+
+    plotting(return_lst, training_started)
     
-    plt.plot(return_lst, linewidth=0.6, label='Episode Return')
+
+def plotting(return_lst, training_started):
+    plt.plot(return_lst, color = 'blue', linewidth=0.6, label='Episode Return')
+
+    #plt.fill_between( [i for i in range(len(return_lst))],   
+    #                  return_lst + np.std(return_lst)/2, 
+    #                  return_lst - np.std(return_lst)/2,
+    #                  color = 'blue', alpha = 0.3 )
+  
     plt.axvline(training_started, linewidth=2, color="r", label='Training Phase Began')
-    plt.legend()
+    plt.axhline(np.array(return_lst[-200:]).mean(), color = "orange", label = 'Mean Return of Last 200 Episodes: {}'.format(round(np.array(return_lst[-200:]).mean())))
+    plt.legend(loc = 'lower right')
     plt.title("Return over Episodes")
     plt.xlabel("Episodes")
     plt.ylabel("Return")
-    plt.savefig("Return Graph.png")
+    title = 'Return Graph DDPG'
+    plt.savefig(title)
+
+if __name__ == "__main__":
+    run_main()

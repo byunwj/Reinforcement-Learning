@@ -34,20 +34,33 @@ The following comparisons were made:
 2. SAC  vs. SAC with reward normalization
 3. SAC  vs. SAC with PER
 Comparisons were made based on the return graphs and the returns of the last 200 episodes.  
-Comparing DDPG and SAC's return graphs, we can see that the return graph of SAC is slightly more stable than that of DDPG as there are no returns less than -500 after episode 100 (which seems to be just slightly after the return starts to converge) for SAC while there is a few returns that spike under -500 for DDPG. Comparing SAC and SAC with reward normalization, there seems to be no advantage in applying reward normalization. In fact, SAC **without** reward normalization seems to converge earlier (before episode 100 while SAC with reward normalization converges around episode 150-200), and it seems that the stability after converging is not necessarily improved by addding reward normalization at least in this example as the mean return of the last 100 episodes is slightly lower in the case with reward normalization. It is also surprising to see that adding PER does not necessarily yield better training result as the mean return of the last 100 episodes is again slightly lower in the case with PER compared to the benchmark SAC. 
-
+Comparing DDPG and SAC's return graphs, we can see that the return graph of SAC is slightly more stable than that of DDPG as there are no returns less than -500 after episode 100 (which seems to be just slightly after the return starts to converge) for SAC while there is a few returns that spike under -500 for DDPG. Comparing SAC and SAC with reward normalization, there seems to be no advantage in applying reward normalization. In fact, SAC **without** reward normalization seems to converge earlier (before episode 100 while SAC with reward normalization converges around episode 150-200), and it seems that the stability after converging is not necessarily improved by addding reward normalization at least in this example as the mean return of the last 100 episodes is slightly lower in the case with reward normalization. It is also surprising to see that adding PER does not necessarily yield better training result as the mean return of the last 100 episodes is again slightly lower in the case with PER compared to the benchmark SAC.  
+  
+  
 <figure>
-<img src="https://github.com/byunwj/Reinforcement-Learning/blob/main/Soft%20Actor%20Critic%20(SAC)/Return%20Graph%20-%20Reward%20Normalization:%20True%20%26%20PER:%20False.png?raw=true" width="550px" height="350px" title="px(픽셀) 크기 설정" alt="Benchmark SAC">
+<img src="https://github.com/byunwj/Reinforcement-Learning/blob/main/Deep%20Deterministic%20Policy%20Gradient%20(DDPG)/Return%20Graph.png?raw=true" width="550px" height="400px" title="px(픽셀) 크기 설정" alt="DDPG">
+<figcaption>DDPG</figcaption>
+</figure>
+</br>
+  
+<figure>
+<img src="https://github.com/byunwj/Reinforcement-Learning/blob/main/Soft%20Actor%20Critic%20(SAC)/Return%20Graph_Reward%20Normalization_%20False%20%26%20PER_%20False.png?raw=true" width="550px" height="400px" title="px(픽셀) 크기 설정" alt="Benchmark SAC">
 <figcaption>Benchmark SAC</figcaption>
 </figure>
 </br>
-
+  
 <figure>
-<img src="https://github.com/byunwj/Reinforcement-Learning/blob/main/Soft%20Actor%20Critic%20(SAC)/Return%20Graph%20-%20Reward%20Normalization:%20True%20%26%20PER:%20False.png?raw=true" width="550px" height="350px" title="px(픽셀) 크기 설정" alt="SAC with Reward Normalization">
+<img src="https://github.com/byunwj/Reinforcement-Learning/blob/main/Soft%20Actor%20Critic%20(SAC)/Return%20Graph_Reward%20Normalization_%20True%20%26%20PER_False.png?raw=true" width="550px" height="400px" title="px(픽셀) 크기 설정" alt="SAC with Reward Normalization">
 <figcaption>SAC with Reward Normalization</figcaption>
 </figure>
 </br>
-
+  
+<figure>
+<img src="https://github.com/byunwj/Reinforcement-Learning/blob/main/Soft%20Actor%20Critic%20(SAC)/Return%20Graph_Reward%20Normalization_False%20%26%20PER_True.png?raw=true" width="550px" height="400px" title="px(픽셀) 크기 설정" alt="SAC with Prioritized Experience Replay">
+<figcaption>SAC with Prioritized Experience Replay</figcaption>
+</figure>
+</br>
+  
 
 # References:
 1. [DQN](https://arxiv.org/abs/1312.5602)

@@ -14,7 +14,6 @@ def run_main(normalize, PER):
     tf.compat.v1.reset_default_graph()
     tf.compat.v1.disable_eager_execution()
     env = gym.make('Pendulum-v0')
-    deq = deque()
 
     # define the state and the action space size
     state_size = env.observation_space.shape[0]         #3
@@ -83,7 +82,7 @@ def plotting(return_lst, training_started, normalize, PER):
     #                  color = 'blue', alpha = 0.3 )
   
     plt.axvline(training_started, linewidth=2, color="r", label='Training Phase Began')
-    plt.axhline(np.array(return_lst[-100:]).mean(), color = "orange", label = 'Mean Return of Last 100 Episodes: {}'.format(round(np.array(return_lst[-100:]).mean())))
+    plt.axhline(np.array(return_lst[-200:]).mean(), color = "orange", label = 'Mean Return of Last 200 Episodes: {}'.format(round(np.array(return_lst[-200:]).mean())))
     plt.legend(loc = 'lower right')
     plt.title("Return over Episodes")
     plt.xlabel("Episodes")
