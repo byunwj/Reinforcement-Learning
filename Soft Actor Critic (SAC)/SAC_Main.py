@@ -77,10 +77,10 @@ def run_main(normalize, PER):
 def plotting(return_lst, training_started, normalize, PER):
     plt.plot(return_lst, color = 'blue', linewidth=0.6, label='Episode Return')
 
-    plt.fill_between( [i for i in range(len(return_lst))],   
-                      return_lst + np.std(return_lst)/2, 
-                      return_lst - np.std(return_lst)/2,
-                      color = 'blue', alpha = 0.3 )
+    #plt.fill_between( [i for i in range(len(return_lst))],   
+    #                  return_lst + np.std(return_lst)/2, 
+    #                  return_lst - np.std(return_lst)/2,
+    #                  color = 'blue', alpha = 0.3 )
   
     plt.axvline(training_started, linewidth=2, color="r", label='Training Phase Began')
     plt.axhline(np.array(return_lst[-100:]).mean(), color = "orange", label = 'Mean Return of Last 100 Episodes: {}'.format(round(np.array(return_lst[-100:]).mean())))
@@ -88,8 +88,8 @@ def plotting(return_lst, training_started, normalize, PER):
     plt.title("Return over Episodes")
     plt.xlabel("Episodes")
     plt.ylabel("Return")
-    title = 'Return Graph - Reward Normalization: {} & PER: {}'.format(normalize, PER)
+    title = 'Return Graph_Reward Normalization_{} & PER_{}'.format(normalize, PER)
     plt.savefig(title)
 
 if __name__ == "__main__":
-    run_main(normalize = True, PER = False)
+    run_main(normalize = False, PER = True)
