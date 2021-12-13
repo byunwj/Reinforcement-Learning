@@ -7,8 +7,8 @@ Note that DQN was implemented using Keras while DDPG and SAC were implemented at
 
 
 # Q-Learning
- While in Markov Process (MP), the transition probability dictates the next state from a certain state, in MDP, the action dictates the next state from one state. And there are consequences of taking a certain action in every state, which we call "rewards". The idea of Q-learning is to learn the optimal policy in a Markov Decision Process (MDP). First, where is the term "Q" coming from? "Q" refers to the action-value function that returns the expected return from taking a certain action in the given state and following the given policy thereafter (sum of expected rewards). In other words, it returns the "value" of a certain action in a given state under the given policy. 
- Then, what is the optimal policy in a MDP? It is simply the policy that yields the maximum sum of expected rewards, which is also the outcome of the optimal action-value function (Q-function) given the same state and action. Since the action-value function would yield the maximum expected return if the agent follows the optimal policy, Q-learning can learn the optimal policy by learning the action-value function. (will not go into too much details of the Bellman optimality and such)
+While in Markov Process (MP), the transition probability dictates the next state from a certain state, in MDP, the action dictates the next state from one state. And there are consequences of taking a certain action in every state, which we call "rewards". The idea of Q-learning is to learn the optimal policy in a Markov Decision Process (MDP). First, where is the term "Q" coming from? "Q" refers to the action-value function that returns the expected return from taking a certain action in the given state and following the given policy thereafter (sum of expected rewards). In other words, it returns the "value" of a certain action in a given state under the given policy. 
+Then, what is the optimal policy in a MDP? It is simply the policy that yields the maximum sum of expected rewards, which is also the outcome of the optimal action-value function (Q-function) given the same state and action. Since the action-value function would yield the maximum expected return if the agent follows the optimal policy, Q-learning can learn the optimal policy by learning the action-value function. (will not go into too much details of the Bellman optimality and such)
 
 # Deep Q-Learning
 ## Deep Q-Networks (DQN)
@@ -38,26 +38,34 @@ Comparing DDPG and SAC's return graphs, we can see that the return graph of SAC 
   
   
 <figure>
+<figcaption> 
+<b>DDPG</b>
+</figcaption>
 <img src="https://github.com/byunwj/Reinforcement-Learning/blob/main/Deep%20Deterministic%20Policy%20Gradient%20(DDPG)/Return%20Graph.png?raw=true" width="550px" height="400px" title="px(픽셀) 크기 설정" alt="DDPG">
-<figcaption>DDPG</figcaption>
 </figure>
 </br>
   
 <figure>
+<figcaption> 
+<b>Benchmark SAC</b>
+</figcaption>
 <img src="https://github.com/byunwj/Reinforcement-Learning/blob/main/Soft%20Actor%20Critic%20(SAC)/Return%20Graph_Reward%20Normalization_%20False%20%26%20PER_%20False.png?raw=true" width="550px" height="400px" title="px(픽셀) 크기 설정" alt="Benchmark SAC">
-<figcaption>Benchmark SAC</figcaption>
 </figure>
 </br>
   
 <figure>
+<figcaption> 
+<b>SAC with Reward Normalization</b>
+</figcaption>
 <img src="https://github.com/byunwj/Reinforcement-Learning/blob/main/Soft%20Actor%20Critic%20(SAC)/Return%20Graph_Reward%20Normalization_%20True%20%26%20PER_False.png?raw=true" width="550px" height="400px" title="px(픽셀) 크기 설정" alt="SAC with Reward Normalization">
-<figcaption>SAC with Reward Normalization</figcaption>
 </figure>
 </br>
   
 <figure>
+<figcaption>
+<b>SAC with Prioritized Experience Replay</b>
+</figcaption>
 <img src="https://github.com/byunwj/Reinforcement-Learning/blob/main/Soft%20Actor%20Critic%20(SAC)/Return%20Graph_Reward%20Normalization_False%20%26%20PER_True.png?raw=true" width="550px" height="400px" title="px(픽셀) 크기 설정" alt="SAC with Prioritized Experience Replay">
-<figcaption>SAC with Prioritized Experience Replay</figcaption>
 </figure>
 </br>
   
