@@ -41,7 +41,7 @@ Comparing DDPG and SAC's return graphs, we can see that the return graph of SAC 
 <figcaption> 
 <b>DDPG</b>
 </figcaption>
-<img src="https://github.com/byunwj/Reinforcement-Learning/blob/main/Deep%20Deterministic%20Policy%20Gradient%20(DDPG)/Return%20Graph.png?raw=true" width="550px" height="400px" title="px(픽셀) 크기 설정" alt="DDPG">
+<img src="https://github.com/byunwj/Reinforcement-Learning/blob/main/Deep%20Deterministic%20Policy%20Gradient%20(DDPG)/Return%20Graph%20DDPG.png?raw=true" width="550px" height="400px" title="px(픽셀) 크기 설정" alt="DDPG">
 </figure>
 </br>
   
@@ -49,7 +49,7 @@ Comparing DDPG and SAC's return graphs, we can see that the return graph of SAC 
 <figcaption> 
 <b>Benchmark SAC</b>
 </figcaption>
-<img src="https://github.com/byunwj/Reinforcement-Learning/blob/main/Soft%20Actor%20Critic%20(SAC)/Return%20Graph_Reward%20Normalization_%20False%20%26%20PER_%20False.png?raw=true" width="550px" height="400px" title="px(픽셀) 크기 설정" alt="Benchmark SAC">
+<img src="https://github.com/byunwj/Reinforcement-Learning/blob/main/Soft%20Actor%20Critic%20(SAC)/Return%20Graph_Reward%20Normalization_False%20%26%20PER_False.png?raw=true" width="550px" height="400px" title="px(픽셀) 크기 설정" alt="Benchmark SAC">
 </figure>
 </br>
   
@@ -57,7 +57,7 @@ Comparing DDPG and SAC's return graphs, we can see that the return graph of SAC 
 <figcaption> 
 <b>SAC with Reward Normalization</b>
 </figcaption>
-<img src="https://github.com/byunwj/Reinforcement-Learning/blob/main/Soft%20Actor%20Critic%20(SAC)/Return%20Graph_Reward%20Normalization_%20True%20%26%20PER_False.png?raw=true" width="550px" height="400px" title="px(픽셀) 크기 설정" alt="SAC with Reward Normalization">
+<img src="https://github.com/byunwj/Reinforcement-Learning/blob/main/Soft%20Actor%20Critic%20(SAC)/Return%20Graph_Reward%20Normalization_True%20%26%20PER_False.png?raw=true" width="550px" height="400px" title="px(픽셀) 크기 설정" alt="SAC with Reward Normalization">
 </figure>
 </br>
   
@@ -68,12 +68,12 @@ Comparing DDPG and SAC's return graphs, we can see that the return graph of SAC 
 <img src="https://github.com/byunwj/Reinforcement-Learning/blob/main/Soft%20Actor%20Critic%20(SAC)/Return%20Graph_Reward%20Normalization_False%20%26%20PER_True.png?raw=true" width="550px" height="400px" title="px(픽셀) 크기 설정" alt="SAC with Prioritized Experience Replay">
 </figure>
 </br>
-  
+
 
 # References:
 1. [DQN](https://arxiv.org/abs/1312.5602)
 2. [DDPG](https://arxiv.org/abs/1509.02971)
 3. [SAC](https://arxiv.org/abs/1801.01290)
-4. [SAC + Prioritized Experience Replay (PER)](https://arxiv.org/abs/1906.04009)
+4. [Prioritized Experience Replay (PER)](https://arxiv.org/abs/1511.05952)
 5. [openai DDPG](https://spinningup.openai.com/en/latest/algorithms/ddpg.html)
 6. [openai SAC](https://spinningup.openai.com/en/latest/algorithms/sac.html) 
